@@ -15,8 +15,7 @@ module.exports = {
 			}
 		}
 	},
-	extends: [
-		'plugin:@typescript-eslint/recommended',
+	extends: ['plugin:@typescript-eslint/recommended',
 		'plugin:prettier/recommended',
 		'prettier',
 		'plugin:react/recommended',
@@ -25,7 +24,10 @@ module.exports = {
 		'plugin:import/warnings',
 		'plugin:import/typescript',
 		'plugin:eslint-comments/recommended',
-	],
+		'plugin:storybook/recommended',
+		'airbnb',
+			'airbnb/hooks'
+			],
 	rules: {
 		semi: [2, 'always'],
 		quotes: [2, 'single', { avoidEscape: true }],
