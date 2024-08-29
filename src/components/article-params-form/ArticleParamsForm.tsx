@@ -5,9 +5,9 @@ import { Select } from '../select';
 import { RadioGroup } from '../radio-group';
 import { Separator } from '../separator';
 import { useState,useEffect,useRef } from 'react';
-// import { useOutsideClickClose  } from '../select/hooks/useOutsideClickClose';
-// import { useEnterOptionSubmit } from '../select/hooks/useEnterOptionSubmit';
-// import { useEnterSubmit } from '../select/hooks/useEnterSubmit';
+import { useOutsideClickClose  } from '../select/hooks/useOutsideClickClose';
+import clsx from 'clsx';
+
 import {
 	fontColors,
 	contentWidthArr,
@@ -20,18 +20,26 @@ import {
 
 import styles from './ArticleParamsForm.module.scss';
 
-type PopsArticleParamsForm = {
-	onSubmit?: (params: ArticleStateType) => void;
-	onReset?: (params: ArticleStateType) => void;
-	onToggle: (params: boolean) => void;
-	openFrm: boolean;
-};
+interface ArticleParamsFormProps {
+	articleState: ArticleStateType;
+	setArticleState: (param: ArticleStateType) => void;
+}
 
 
-export const ArticleParamsForm = (pops:PopsArticleParamsForm) => {
-	const toggler = () => {
-		pops.onToggle(pops.openFrm);
-	};
+export const ArticleParamsForm = ( {articleState,	setArticleState} : ArticleParamsFormProps ) => {
+
+	// const toggler = () => {
+	// 	pops.onToggle(pops.openFrm);
+	// };
+
+	const [openFrm, setOpenFrm] = useState(false);
+
+	// const toggler = () => setOpenFrm(!openFrm);
+	// const onToggle = (param: boolean) => setOpenFrm(param);
+
+	const buttSubmit = (props: ArticleStateType) => setArticleState(props);
+
+	const buttReset = (props: ArticleStateType) => setArticleState(props);
 	const formRef = useRef(null);
 
 	const [stateFont, setStateFont] = useState(
@@ -46,12 +54,16 @@ export const ArticleParamsForm = (pops:PopsArticleParamsForm) => {
 		defaultArticleState.contentWidth);
 
 		useEffect(() => {
-			const openMenu = (event: KeyboardEvent) => {
-				if (event.key === 'Escape' && pops.openFrm === true) pops.onToggle(false);
-			};
-			document.addEventListener('keydown', openMenu);
-			return () => document.removeEventListener('keydown', openMenu);
-		}, [pops.openFrm]);
+			if (!openFrm) return;
+		}, [openFrm]);
+
+		// useEffect(() => {
+		// 	const openMenu = (event: KeyboardEvent) => {
+		// 		if (event.key === 'Escape' && openFrm === true) setOpenFrm(false);
+		// 	};
+		// 	document.addEventListener('keydown', openMenu);
+		// 	return () => document.removeEventListener('keydown', openMenu);
+		// }, [openFrm]);
 
 		const submitStyle = (e: React.FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
@@ -60,14 +72,14 @@ export const ArticleParamsForm = (pops:PopsArticleParamsForm) => {
 			// 	backgroundColor:stateBgrColor,
 			// 	contentWidth:stateWidthCnt,
 			// 	fontSizeOption:stateSize});
-			pops.onSubmit?.({fontFamilyOption: stateFont,
+			buttSubmit({fontFamilyOption: stateFont,
 				fontColor: stateColor,
 				backgroundColor:stateBgrColor,
 				contentWidth:stateWidthCnt,
 				fontSizeOption:stateSize} );
 		};
 
-		// useOutsideClickClose({isOpen : pops.openFrm, rootRef: formRef, onClose: () => pops.onToggle(pops.openFrm), onChange :pops.onToggle});
+		useOutsideClickClose({isOpen : openFrm, rootRef: formRef, onClose: () => setOpenFrm(false), onChange : setOpenFrm});
 
 
 		const resetStyles = () => {
@@ -82,17 +94,17 @@ export const ArticleParamsForm = (pops:PopsArticleParamsForm) => {
 			setStateWidthCnt(
 				defaultArticleState.contentWidth);
 			//setParams(defaultArticleState);
-			pops.onReset?.(defaultArticleState);
+			buttReset(defaultArticleState);
 		};
 
 
 	return (
 		<>
-			<ArrowButton setClick={toggler} menuOpen={pops.openFrm} />
-			<aside className={`${styles.container} ${
-					pops.openFrm && styles.container_open
-				}`}  >
-				<form onSubmit={submitStyle} onReset={resetStyles}  className={styles.form} ref={formRef}>
+			<ArrowButton setClick={setOpenFrm} menuOpen={openFrm}  />
+			<aside ref={formRef}
+			className={clsx(styles.container, openFrm && styles.container_open)}  >
+				<form
+					onSubmit={submitStyle} onReset={resetStyles}  className={styles.form} >
 					<Text as='h1' size={31} weight={800} uppercase>
 						Задайте параметры
 					</Text>
